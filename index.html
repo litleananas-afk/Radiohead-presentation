@@ -6,7 +6,7 @@
 html,body{height:100%;background:#000;overflow:hidden}
 img{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;display:none;user-select:none;-webkit-user-drag:none}
 img.on{display:block}
-iframe{position:fixed;left:50%;top:50%;width:min(100vw,177.7778vh);height:min(100vh,56.25vw);transform:translate(-50%,-50%);border:0;background:#0A0A0A;visibility:hidden;pointer-events:none}
+iframe{position:fixed;left:0;top:0;width:100%;height:100%;border:0;background:#0A0A0A;visibility:hidden;pointer-events:none}
 iframe.on{visibility:visible}
 #fs{display:none}
 body.ui #fs{opacity:1}
@@ -15,9 +15,9 @@ body.ui{cursor:default}
 
 <script>
 const N=9;let cur=0;const imgs=[];const ANIM={2:'slides/02.html',6:'slides/06.html'};
-function fit(){}
+function fit(){const de=document.documentElement,w=de.clientWidth,h=de.clientHeight,k=Math.min(w/1920,h/1080),W=Math.round(1920*k),H=Math.round(1080*k);imgs.forEach(el=>{if(el.tagName==='IFRAME'){el.style.width=W+'px';el.style.height=H+'px';el.style.left=Math.round((w-W)/2)+'px';el.style.top=Math.round((h-H)/2)+'px'}})}
 for(let i=1;i<=N;i++){let el;if(ANIM[i]){el=document.createElement('iframe');el.src=ANIM[i];el.setAttribute('scrolling','no');el.onload=()=>{if(imgs[cur]===el){try{el.contentWindow.postMessage('play','*')}catch(e){}}}}else{el=new Image();el.src='slides/'+String(i).padStart(2,'0')+'.png';el.draggable=false}document.body.appendChild(el);imgs.push(el)}
-addEventListener('resize',fit);fit();
+addEventListener('resize',fit);['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{fit();setTimeout(fit,200);setTimeout(fit,800)}));if(window.ResizeObserver)new ResizeObserver(fit).observe(document.documentElement);fit();setTimeout(fit,300);
 function go(n){cur=Math.max(0,Math.min(N-1,n));imgs.forEach((im,i)=>im.classList.toggle('on',i===cur));const c=imgs[cur];if(c.tagName==='IFRAME'){try{c.contentWindow.postMessage('play','*')}catch(e){}}try{history.replaceState(null,'','#'+(cur+1))}catch(e){}}
 function toggleFs(){const d=document,r=d.documentElement;if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}else{const q=(r.requestFullscreen||r.webkitRequestFullscreen).call(r);if(q&&q.catch)q.catch(()=>{fsb.textContent='Safari: Ctrl+Cmd+F'})}}
 const fsb={textContent:'',addEventListener(){}};
